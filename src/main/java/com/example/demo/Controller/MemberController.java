@@ -1,10 +1,10 @@
 package com.example.demo.Controller;
 
 import com.example.demo.Dto.MemberDto;
-import com.example.demo.Entity.Member;
 import com.example.demo.Service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,42 +15,45 @@ public class MemberController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/test/register")
-    public Member register(@RequestBody MemberDto MemberDto){
+    public ResponseEntity<MemberDto> register(@RequestBody MemberDto MemberDto){
         boolean check = memberService.getEmailCheck(MemberDto.getMemberEmail());
 
-        String result;
-        if(!check){
-            memberService.register(MemberDto);
-            result = "가입 성공";
+        if (check){
+            MemberDto createdMemberDto = memberService.register(MemberDto);
+            if (createdMemberDto != null){
+                System.out.println("가입 성공");
+                return ResponseEntity.ok(createdMemberDto);
+            }
         }
-        else{
-            result = "이메일이 이미 존재";
-        }
-        System.out.println(result);
-
-        return null;
+        System.out.println("가입 실패");
+        return ResponseEntity.badRequest().body(null);
     }
 
     @GetMapping("/check/register/{Email}")
-    public boolean checkEmail(@PathVariable String Email){
-        boolean check = memberService.getEmailCheck(Email);
-        return check;
+    public ResponseEntity<Boolean> checkEmail(@PathVariable String Email){
+        Boolean check = memberService.getEmailCheck(Email);
+
+        if (check){
+            return ResponseEntity.ok(check);
+        }
+        else{
+            return ResponseEntity.badRequest().body(check);
+        }
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/test/login")
-    public String login(@RequestBody MemberDto MemberDto){
+    public ResponseEntity<String> login(@RequestBody MemberDto MemberDto){
         boolean check = memberService.getEmailCheck(MemberDto.getMemberEmail());
 
         String result = "로그인 실패";
-        if(check){
+        if (check){
             MemberDto findMemberDto = memberService.getMemberDto(MemberDto.getMemberEmail());
             if (findMemberDto.getMemberPassword().equals(MemberDto.getMemberPassword())){
-                result = "로그인 성공";
+                return ResponseEntity.ok("로그인 성공");
             }
         }
-
-        return result;
+        return ResponseEntity.badRequest().body("로그인 실패");
     }
 
 }

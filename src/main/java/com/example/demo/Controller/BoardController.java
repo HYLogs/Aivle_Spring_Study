@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.Dto.BoardDto;
 import com.example.demo.Entity.Board;
 import com.example.demo.Service.BoardService;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,8 @@ public class BoardController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
-    public ResponseEntity<Board> create(@RequestBody Board board){
-        Board createdBoard = boardService.create(board);
+    public ResponseEntity<BoardDto> create(@RequestBody Board board){
+        BoardDto createdBoard = boardService.create(board);
 
         if (createdBoard != null){
             return ResponseEntity.ok(createdBoard);
@@ -32,34 +33,46 @@ public class BoardController {
         }
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/readAll")
-    public List<Board> readAll(){
-        List<Board> boards = boardService.readAll();
-        return boards;
+    public ResponseEntity<List<BoardDto>> readAll(){
+        List<BoardDto> boardDtos = boardService.readAll();
+
+        if (!boardDtos.isEmpty()){
+            return ResponseEntity.ok(boardDtos);
+        }
+        else{
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
-    // 페이지 별로 불러오기 ex) localhost:8888/test/board/read?page=0
-    @ResponseStatus(HttpStatus.OK)
+    // 페이지 별로 불러오기 ex) localhost:8888/test/board/read?page=0&size=3
     @GetMapping("/read")
-    public List<Board> readPage(@PageableDefault(size = 2) Pageable pageable){
-        List<Board> boards = boardService.readAllPageable(pageable);
+    public ResponseEntity<List<BoardDto>> readPage(@PageableDefault(size = 2) Pageable pageable){
+        List<BoardDto> boardDtos = boardService.readAllPageable(pageable);
 
-        return boards;
+        if (!boardDtos.isEmpty()){
+            return ResponseEntity.ok(boardDtos);
+        }
+        else{
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     // 내 게시물만 불러오기
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/readMyBoard")
-    public List<Board> readMyBoard(){
+    public ResponseEntity<List<BoardDto>> readMyBoard(){
         String userName = "HY";
-        List<Board> boards = boardService.readMyBoard(userName);
+        List<BoardDto> boardDtos = boardService.readMyBoard(userName);
 
-        return boards;
+        if (!boardDtos.isEmpty()){
+            return ResponseEntity.ok(boardDtos);
+        }
+        else{
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     // 해당 게시판이 내 것인지 확인
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/check/{boardId}")
     public ResponseEntity<Boolean> checkMyBoard(@PathVariable Long boardId){
         String userName = "HY";
@@ -74,8 +87,8 @@ public class BoardController {
     }
 
     @PutMapping("/update/{boardId}")
-    public ResponseEntity<Board> update(@PathVariable Long boardId, @RequestBody Board board){
-        Board updatedBoards = boardService.update(boardId, board.getContent());
+    public ResponseEntity<BoardDto> update(@PathVariable Long boardId, @RequestBody Board board){
+        BoardDto updatedBoards = boardService.update(boardId, board.getContent());
 
         if (updatedBoards != null){
             return ResponseEntity.ok(updatedBoards);
@@ -86,8 +99,8 @@ public class BoardController {
     }
 
     @DeleteMapping("/delete/{boardId}")
-    public ResponseEntity<Board> delete(@PathVariable Long boardId){
-        Board deletedBoards = boardService.delete(boardId);
+    public ResponseEntity<BoardDto> delete(@PathVariable Long boardId){
+        BoardDto deletedBoards = boardService.delete(boardId);
 
         if (deletedBoards != null){
             return ResponseEntity.ok(deletedBoards);
@@ -98,9 +111,14 @@ public class BoardController {
     }
 
     @GetMapping("/search/{keyword}")
-    public List<Board> boardSearch(@PathVariable String keyword){
-        List<Board> posts = boardService.getBoardKeyword(keyword);
+    public ResponseEntity<List<BoardDto>> boardSearch(@PathVariable String keyword){
+        List<BoardDto> boardDtos = boardService.getBoardKeyword(keyword);
 
-        return posts;
+        if (!boardDtos.isEmpty()){
+            return ResponseEntity.ok(boardDtos);
+        }
+        else{
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 }

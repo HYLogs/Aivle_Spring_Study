@@ -1,6 +1,6 @@
 package com.example.demo.Controller;
 
-import com.example.demo.Entity.Board;
+import com.example.demo.Dto.CommentDto;
 import com.example.demo.Entity.Comment;
 import com.example.demo.Service.CommentService;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,8 @@ public class CommentController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
-    public ResponseEntity<Comment> create(@PathVariable("boardId") Long boardId, @RequestBody Comment comment){
-        Comment createdBoard = commentService.create(boardId, comment);
+    public ResponseEntity<CommentDto> create(@PathVariable("boardId") Long boardId, @RequestBody CommentDto comment){
+        CommentDto createdBoard = commentService.create(boardId, comment);
 
         if (createdBoard != null){
             return ResponseEntity.ok(createdBoard);
@@ -31,25 +31,33 @@ public class CommentController {
         }
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/read")
-    public List<Comment> readAll(@PathVariable("boardId") Long boardId){
-        List<Comment> comments = commentService.readAll(boardId);
-        return comments;
+    public ResponseEntity<List<CommentDto>> readAll(@PathVariable("boardId") Long boardId){
+        List<CommentDto> comments = commentService.readAll(boardId);
+
+        if (!comments.isEmpty()){
+            return ResponseEntity.ok(comments);
+        }
+        else{
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     // 내 댓글만 불러오기
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/readMyBoard")
-    public List<Comment> readMyComment(){
+    @GetMapping("/readMyComment")
+    public ResponseEntity<List<CommentDto>> readMyComment(){
         String userName = "HY";
-        List<Comment> comments = commentService.readMyComment(userName);
+        List<CommentDto> comments = commentService.readMyComment(userName);
 
-        return comments;
+        if (!comments.isEmpty()){
+            return ResponseEntity.ok(comments);
+        }
+        else{
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     // 해당 댓글이 내 것인지 확인
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/check/{commentId}")
     public ResponseEntity<Boolean> checkMyComment(@PathVariable("commentId") Long commentId){
         String userName = "HY";
@@ -64,8 +72,8 @@ public class CommentController {
     }
 
     @PutMapping("/update/{commentId}")
-    public ResponseEntity<Comment> update(@PathVariable("commentId") Long commentId, @RequestBody Comment comment){
-        Comment updatedComment = commentService.update(commentId, comment.getCommentContent());
+    public ResponseEntity<CommentDto> update(@PathVariable("commentId") Long commentId, @RequestBody Comment comment){
+        CommentDto updatedComment = commentService.update(commentId, comment.getCommentContent());
 
         if (updatedComment != null){
             return ResponseEntity.ok(updatedComment);
@@ -76,8 +84,8 @@ public class CommentController {
     }
 
     @DeleteMapping("/delete/{commentId}")
-    public ResponseEntity<Comment> delete(@PathVariable("commentId") Long commentId){
-        Comment deletedComment = commentService.delete(commentId);
+    public ResponseEntity<CommentDto> delete(@PathVariable("commentId") Long commentId){
+        CommentDto deletedComment = commentService.delete(commentId);
 
         if (deletedComment != null){
             return ResponseEntity.ok(deletedComment);

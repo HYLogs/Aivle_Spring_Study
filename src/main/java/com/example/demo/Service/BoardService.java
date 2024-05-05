@@ -1,6 +1,7 @@
 package com.example.demo.Service;
 
 
+import com.example.demo.Dto.BoardDto;
 import com.example.demo.Entity.Board;
 import com.example.demo.Repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,30 +20,37 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
 
+    public List<BoardDto> convertToDto(List<Board> boards) {
+        return boards.stream()
+                .map(BoardDto::new)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
-    public Board create(Board board){
+    public BoardDto create(Board board){
         board.setWriter("HY");
         Board createdBoard = boardRepository.save(board);
+        BoardDto boardDto = new BoardDto(createdBoard);
 
-        return createdBoard;
+        return boardDto;
     }
 
-    public List<Board> readAll(){
+    public List<BoardDto> readAll(){
         List<Board> boards =  boardRepository.findAll();
-
-        return boards;
+        List<BoardDto> boardDtos = convertToDto(boards);
+        return boardDtos;
     }
 
-    public List<Board> readAllPageable(Pageable pageable){
+    public List<BoardDto> readAllPageable(Pageable pageable){
         List<Board> boards = boardRepository.findAll(pageable).getContent();
-
-        return boards;
+        List<BoardDto> boardDtos = convertToDto(boards);
+        return boardDtos;
     }
 
-    public List<Board> readMyBoard(String writer){
+    public List<BoardDto> readMyBoard(String writer){
         List<Board> boards = boardRepository.findByWriter(writer);
-
-        return boards;
+        List<BoardDto> boardDtos = convertToDto(boards);
+        return boardDtos;
     }
 
     public boolean checkMyBoard(Long id, String writer){
@@ -58,33 +67,36 @@ public class BoardService {
     }
 
     @Transactional
-    public Board update(Long id, String content){
-        Optional<Board> board = boardRepository.findById(id);
-        if (board.isEmpty()){
+    public BoardDto update(Long id, String content){
+        Optional<Board> boards = boardRepository.findById(id);
+        if (boards.isEmpty()){
             return null;
         }
 
-        Board result = board.get();
-        result.setContent(content);
-        return result;
+        Board board = boards.get();
+        board.setContent(content);
+
+        BoardDto boardDto = new BoardDto(board);
+        return boardDto;
     }
 
     @Transactional
-    public Board delete(Long id){
-        Optional<Board> opBoard = boardRepository.findById(id);
-        if (opBoard.isEmpty()){
+    public BoardDto delete(Long id){
+        Optional<Board> boards = boardRepository.findById(id);
+        if (boards.isEmpty()){
             return null;
         }
 
-        Board board = opBoard.get();
+        Board board = boards.get();
         boardRepository.delete(board);
 
-        return board;
+        BoardDto boardDto = new BoardDto(board);
+        return boardDto;
     }
 
-    public List<Board> getBoardKeyword(String keyword){
-        List<Board> posts = boardRepository.findCustomByTitleContaining(keyword);
-
-        return posts;
+    public List<BoardDto> getBoardKeyword(String keyword){
+        List<Board> boards = boardRepository.findCustomByTitleContaining(keyword);
+        List<BoardDto> boardDtos = convertToDto(boards);
+        return boardDtos;
     }
 }
