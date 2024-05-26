@@ -4,6 +4,7 @@ import com.example.demo.Dto.MemberDto;
 import com.example.demo.Entity.Member;
 import com.example.demo.Repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,12 +12,15 @@ import org.springframework.stereotype.Service;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public MemberDto register(MemberDto memberDto){
+        String encodedPassword = passwordEncoder.encode(memberDto.getMemberPassword());
         Member member = new Member();
         member.setName(memberDto.getMemberName());
-        member.setPassword(memberDto.getMemberPassword());
+        member.setPassword(encodedPassword);
         member.setEmail(memberDto.getMemberEmail());
+        member.setRole("ROLE_ADMIN");
 
         memberRepository.save(member);
 

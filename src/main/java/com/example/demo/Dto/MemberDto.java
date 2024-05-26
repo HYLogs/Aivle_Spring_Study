@@ -3,6 +3,7 @@ package com.example.demo.Dto;
 import com.example.demo.Entity.Member;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class MemberDto {
     private Long id;
     private String memberName;

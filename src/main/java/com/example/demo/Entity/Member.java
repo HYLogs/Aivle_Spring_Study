@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Table(name = "member")
@@ -27,6 +28,15 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<BoardMemberLike> boardMemberLikes = new ArrayList<>();
+
+    private String role; // USER, ADMIN
+
+    public List<String> getRoleList() {
+        if (this.role.length() > 0) {
+            return Arrays.asList(this.role.split(","));
+        }
+        return new ArrayList<>();
+    }
 
     //==연관관계 메서드==//
     public void addBoardMemberLike(BoardMemberLike boardMemberLike) {

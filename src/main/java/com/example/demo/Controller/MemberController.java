@@ -1,10 +1,13 @@
 package com.example.demo.Controller;
 
 import com.example.demo.Dto.MemberDto;
+import com.example.demo.Entity.Member;
+import com.example.demo.Security.Auth.CustomUserDetails;
 import com.example.demo.Service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,7 +21,7 @@ public class MemberController {
     public ResponseEntity<MemberDto> register(@RequestBody MemberDto MemberDto){
         boolean check = memberService.getEmailCheck(MemberDto.getMemberEmail());
 
-        if (check){
+        if (!check){
             MemberDto createdMemberDto = memberService.register(MemberDto);
             if (createdMemberDto != null){
                 System.out.println("가입 성공");
@@ -54,6 +57,21 @@ public class MemberController {
             }
         }
         return ResponseEntity.badRequest().body("로그인 실패");
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/check")
+    public String checkEmail(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        Member member = customUserDetails.getMember();
+
+        return member.getEmail();
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/admin")
+    public String admin(){
+
+        return "admin";
     }
 
 }
