@@ -39,4 +39,4 @@ out/
 
 # properties scret 추가 #
 application-secret.properties
-JwtProperties
+JwtProperties.java
